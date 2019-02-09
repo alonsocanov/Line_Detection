@@ -8,11 +8,13 @@ import matplotlib.pyplot as plt
 def main():
     print('Line detection')
 
-
     # lower bound of color line
     low_color = [0, 0, 0]
     # upper bound of color line
     up_color = [10, 10, 10]
+    # lower and upper color normalization for HSV on OpenCV
+    low_color, up_color = f.hsv2cvhsc(low_color, up_color)
+
     # radious for visualization image 
     rad = 10
     # path of the test videos
@@ -23,9 +25,6 @@ def main():
     video = cv2.VideoCapture(path + vid)
     line = None
 
-     # load data from arduino
-    path_file_arduino = 'Arduino/'
-    arduino_data = 'arduino_data_v1.txt'
     # load camera parameters
     # image_type: camera aleady calibrated = 0, normal camera = 1, camera fiseye = 2
     image_type = 0
@@ -73,7 +72,7 @@ def main():
     img_edges = 'Edges'
     cv2.namedWindow(img_edges)
     cv2.moveWindow(img_edges, 450, 30)
-    # create text
+    # create text for figures
     corner_text = (20, 20)
     corner_text_height = (20, 50)
     corner_text_accel = (20, 80)
@@ -102,7 +101,7 @@ def main():
         lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold, minLineLength=5, maxLineGap=10) 
        
        
-        
+        # setting variables to zero, because there isn't a file to read 
         gyro = np.array([0.,0.,0.])
         height = 0.0
 
@@ -111,8 +110,6 @@ def main():
         cx, cy = center_image.astype(int)
         max_line = np.array([0, 0, 0, 0])
         if lines is not None:
-            #if np.all(lines.shape, (4,), 0):
-             #   line = lines
             if True:
                 for l in lines:
                     a = max_line[:2]
@@ -140,15 +137,15 @@ def main():
         cv2.line(frame, (cx, cy), (coor[0], coor[1]), (255, 0, 0))
         cv2.line(frame, (coor[0], coor[1]), (direction[0], direction[1]), (255, 0, 0))
 
-        
+        # image visualization
         cv2.imshow(img_frame, frame)
         cv2.putText(edges, 'Norm: '+ str(norm_wu), corner_text, font, font_scale, font_color, line_type)
         cv2.putText(edges, 'Height: '+ str(height), corner_text_height, font, font_scale, font_color, line_type)
-        str_accel = str(gyro[0]) + ' ' + str(gyro[1]) + ' ' + str(gyro[2]) 
-        cv2.putText(edges, 'gyro: '+ str_accel, corner_text_accel, font, font_scale, font_color, line_type)
+        str_gyro = str(gyro[0]) + ' ' + str(gyro[1]) + ' ' + str(gyro[2]) 
+        cv2.putText(edges, 'gyro: '+ str_gyro, corner_text_accel, font, font_scale, font_color, line_type)
         cv2.imshow(img_edges, edges)
 
-
+        # if q is pressed the vido stops
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             break

@@ -73,3 +73,16 @@ def cam_calib(orig_frame, cam_matrix, cam_disto, cam_scaled_matrix, undisort):
     else:
         center_image = np.array([orig_frame.shape[0]/2, orig_frame.shape[1]/2])
         return orig_frame, center_image, orig_frame.shape[:2]
+
+# color normalization of HSV to OpenCV HSV 
+def hsv2cvhsc(low_color_, up_color_):
+    ## For HSV, Hue range is [0,179], Saturation range is [0,255]
+    ## and Value range is [0,255]. Different software use different scales.
+    ## So if you are comparinn in OpenCV values with them, you need to normalize these ranges.
+    low_color_ = np.array(low_color_)
+    up_color_ = np.array(up_color_)
+    hsv_orig = np.array([360, 100, 100])
+    hsv_cv = np.array([179, 255, 255])
+    low_color_cv = np.divide((low_color_*hsv_cv),hsv_orig)
+    up_color_cv = np.divide((up_color_*hsv_cv),hsv_orig)
+    return low_color_cv.astype(int), up_color_cv.astype(int)
